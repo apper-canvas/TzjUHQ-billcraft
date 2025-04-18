@@ -38,10 +38,10 @@ function App() {
               transition={{ duration: 0.8, ease: "easeInOut" }}
               className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center overflow-hidden"
             >
-              <span className="text-white font-bold text-sm">YBP</span>
+              <span className="text-white font-bold text-sm">BL</span>
             </motion.div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Your Billing Partner
+              BillLead
             </span>
           </div>
           
@@ -120,7 +120,7 @@ function App() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-center md:text-left">
               <p className="text-sm text-surface-600 dark:text-surface-400">
-                &copy; {new Date().getFullYear()} Your Billing Partner. All rights reserved.
+                &copy; {new Date().getFullYear()} BillLead. All rights reserved.
               </p>
             </div>
             <div className="flex gap-6">

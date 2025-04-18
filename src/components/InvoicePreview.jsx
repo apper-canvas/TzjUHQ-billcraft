@@ -8,14 +8,14 @@ const InvoicePreview = ({ invoice }) => {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">YBP</span>
+              <span className="text-white font-bold text-lg">BL</span>
             </div>
-            <span className="text-xl font-bold">Your Billing Partner</span>
+            <span className="text-xl font-bold">BillLead</span>
           </div>
           <div className="text-surface-600 dark:text-surface-400">
             <p>123 Business Avenue</p>
             <p>Finance District, NY 10001</p>
-            <p>contact@yourbillingpartner.com</p>
+            <p>contact@billlead.com</p>
             <p>+1 (555) 123-4567</p>
           </div>
         </div>
@@ -131,7 +131,7 @@ const InvoicePreview = ({ invoice }) => {
       <div className="text-center text-surface-500 dark:text-surface-400 text-sm border-t border-surface-200 dark:border-surface-700 pt-4">
         <p>Thank you for your business!</p>
         <p className="mt-2">
-          This invoice was created using <span className="font-semibold">Your Billing Partner</span>
+          This invoice was created using <span className="font-semibold">BillLead</span>
         </p>
       </div>
     </div>
