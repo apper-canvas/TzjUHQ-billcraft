@@ -36,9 +36,9 @@ function App() {
               initial={{ rotate: 0 }}
               animate={{ rotate: 360 }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center"
+              className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center overflow-hidden"
             >
-              <span className="text-white font-bold text-lg">YBP</span>
+              <span className="text-white font-bold text-sm">YBP</span>
             </motion.div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Your Billing Partner
