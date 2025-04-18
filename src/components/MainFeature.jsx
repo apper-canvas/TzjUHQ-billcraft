@@ -39,23 +39,52 @@ const MainFeature = () => {
   
   // Calculate totals whenever items, tax rate, or discount changes
   useEffect(() => {
-    const items = invoice.items.map(item => ({
+    // Calculate item totals
+    const updatedItems = invoice.items.map(item => ({
       ...item,
       total: item.quantity * item.price
     }));
     
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const taxAmount = subtotal * (invoice.taxRate / 100);
-    const total = subtotal + taxAmount - invoice.discount;
+    // Check if item totals have changed
+    const itemsChanged = updatedItems.some((item, index) => 
+      item.total !== invoice.items[index].total
+    );
     
+    if (!itemsChanged && 
+        invoice.subtotal === calculateSubtotal(updatedItems) && 
+        invoice.taxAmount === calculateTaxAmount(invoice.subtotal, invoice.taxRate) && 
+        invoice.total === calculateTotal(invoice.subtotal, invoice.taxAmount, invoice.discount)) {
+      // No changes needed, avoid updating state
+      return;
+    }
+    
+    // Calculate new values
+    const newSubtotal = calculateSubtotal(updatedItems);
+    const newTaxAmount = calculateTaxAmount(newSubtotal, invoice.taxRate);
+    const newTotal = calculateTotal(newSubtotal, newTaxAmount, invoice.discount);
+    
+    // Update state only if values have changed
     setInvoice(prev => ({
       ...prev,
-      items,
-      subtotal,
-      taxAmount,
-      total
+      items: updatedItems,
+      subtotal: newSubtotal,
+      taxAmount: newTaxAmount,
+      total: newTotal
     }));
   }, [invoice.items, invoice.taxRate, invoice.discount]);
+  
+  // Helper functions for calculations
+  function calculateSubtotal(items) {
+    return items.reduce((sum, item) => sum + item.total, 0);
+  }
+  
+  function calculateTaxAmount(subtotal, taxRate) {
+    return subtotal * (taxRate / 100);
+  }
+  
+  function calculateTotal(subtotal, taxAmount, discount) {
+    return subtotal + taxAmount - discount;
+  }
   
   // Format date to YYYY-MM-DD
   function formatDate(date) {
@@ -112,9 +141,8 @@ const MainFeature = () => {
   
   // Handle item changes
   const handleItemChange = (id, field, value) => {
-    setInvoice(prev => ({
-      ...prev,
-      items: prev.items.map(item => 
+    setInvoice(prev => {
+      const updatedItems = prev.items.map(item => 
         item.id === id 
           ? { 
               ...item, 
@@ -123,8 +151,13 @@ const MainFeature = () => {
                 : value 
             } 
           : item
-      )
-    }));
+      );
+      
+      return {
+        ...prev,
+        items: updatedItems
+      };
+    });
   };
   
   // Add new item
@@ -210,7 +243,7 @@ const MainFeature = () => {
     
     setPreviewMode(!previewMode);
   };
-  
+
   return (
     <div className="relative">
       <AnimatePresence mode="wait">
