@@ -18,7 +18,7 @@ const Home = () => {
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-3/4">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome to Biller</h1>
+            <h1 className="text-3xl font-bold mb-2">Welcome to BillDealer</h1>
             <p className="text-surface-600 dark:text-surface-400">
               Create professional, customized invoices in minutes
             </p>

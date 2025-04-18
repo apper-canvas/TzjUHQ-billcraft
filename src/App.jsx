@@ -41,7 +41,7 @@ function App() {
               <span className="text-white font-bold text-sm">B</span>
             </motion.div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Biller
+              BillDealer
             </span>
           </div>
           
@@ -120,7 +120,7 @@ function App() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-center md:text-left">
               <p className="text-sm text-surface-600 dark:text-surface-400">
-                &copy; {new Date().getFullYear()} Biller. All rights reserved.
+                &copy; {new Date().getFullYear()} BillDealer. All rights reserved.
               </p>
             </div>
             <div className="flex gap-6">
