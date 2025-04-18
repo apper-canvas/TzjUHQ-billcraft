@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Trash2, Download, Send, Save, FileText, 
   DollarSign, Percent, Calendar, User, Building, 
-  Hash, CreditCard, Check
+  Hash, CreditCard, Check, Printer, Eye, Edit
 } from 'lucide-react';
+import InvoicePreview from './InvoicePreview';
+import PrintButton from './PrintButton';
 
 const MainFeature = () => {
   // Invoice state
@@ -268,12 +270,23 @@ const MainFeature = () => {
           <button
             type="button"
             onClick={togglePreview}
-            className={`btn ${previewMode ? 'btn-outline' : 'btn-secondary'}`}
+            className={`btn ${previewMode ? 'btn-outline' : 'btn-secondary'} flex items-center`}
           >
-            {previewMode ? 'Edit Invoice' : 'Preview'}
+            {previewMode ? (
+              <>
+                <Edit size={18} className="mr-2" /> Edit Invoice
+              </>
+            ) : (
+              <>
+                <Eye size={18} className="mr-2" /> Preview
+              </>
+            )}
           </button>
           {previewMode && (
             <div className="flex gap-2">
+              <PrintButton target="invoice-preview" className="btn btn-outline flex items-center">
+                <Printer size={18} className="mr-2" /> Print
+              </PrintButton>
               <button type="button" className="btn btn-outline flex items-center">
                 <Download size={18} className="mr-2" /> Download
               </button>
@@ -292,106 +305,8 @@ const MainFeature = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="card p-8"
           >
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">B</span>
-                  </div>
-                  <span className="text-xl font-bold">BillCraft</span>
-                </div>
-                <p className="text-surface-600 dark:text-surface-400">123 Business Street</p>
-                <p className="text-surface-600 dark:text-surface-400">City, State 12345</p>
-                <p className="text-surface-600 dark:text-surface-400">contact@billcraft.com</p>
-              </div>
-              
-              <div className="text-right">
-                <h1 className="text-3xl font-bold mb-2">INVOICE</h1>
-                <p className="flex items-center justify-end text-surface-600 dark:text-surface-400 mb-1">
-                  <Hash size={16} className="mr-1" /> {invoice.invoiceNumber}
-                </p>
-                <p className="flex items-center justify-end text-surface-600 dark:text-surface-400 mb-1">
-                  <Calendar size={16} className="mr-1" /> Issue Date: {invoice.date}
-                </p>
-                <p className="flex items-center justify-end text-surface-600 dark:text-surface-400">
-                  <Calendar size={16} className="mr-1" /> Due Date: {invoice.dueDate}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex flex-col md:flex-row justify-between mb-8 gap-8">
-              <div>
-                <h3 className="text-sm font-semibold text-surface-500 dark:text-surface-400 mb-2 flex items-center">
-                  <Building size={16} className="mr-1" /> BILL TO
-                </h3>
-                <p className="font-semibold">{invoice.client.name}</p>
-                <p className="text-surface-600 dark:text-surface-400">{invoice.client.email}</p>
-                <p className="text-surface-600 dark:text-surface-400 whitespace-pre-line">{invoice.client.address}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-semibold text-surface-500 dark:text-surface-400 mb-2 flex items-center">
-                  <CreditCard size={16} className="mr-1" /> PAYMENT DETAILS
-                </h3>
-                <p className="text-surface-600 dark:text-surface-400">Bank Transfer</p>
-                <p className="text-surface-600 dark:text-surface-400">Account: XXXX-XXXX-XXXX-1234</p>
-              </div>
-            </div>
-            
-            <div className="mb-8">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-surface-200 dark:border-surface-700">
-                    <th className="py-3 px-4 text-left">Description</th>
-                    <th className="py-3 px-4 text-right">Quantity</th>
-                    <th className="py-3 px-4 text-right">Price</th>
-                    <th className="py-3 px-4 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoice.items.map((item) => (
-                    <tr key={item.id} className="border-b border-surface-200 dark:border-surface-700">
-                      <td className="py-3 px-4">{item.description}</td>
-                      <td className="py-3 px-4 text-right">{item.quantity}</td>
-                      <td className="py-3 px-4 text-right">${item.price.toFixed(2)}</td>
-                      <td className="py-3 px-4 text-right">${item.total.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            <div className="flex justify-end">
-              <div className="w-full md:w-64">
-                <div className="flex justify-between py-2">
-                  <span className="text-surface-600 dark:text-surface-400">Subtotal:</span>
-                  <span>${invoice.subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-surface-600 dark:text-surface-400">Tax ({invoice.taxRate}%):</span>
-                  <span>${invoice.taxAmount.toFixed(2)}</span>
-                </div>
-                {invoice.discount > 0 && (
-                  <div className="flex justify-between py-2">
-                    <span className="text-surface-600 dark:text-surface-400">Discount:</span>
-                    <span>-${invoice.discount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between py-2 border-t border-surface-200 dark:border-surface-700 font-bold">
-                  <span>Total:</span>
-                  <span>${invoice.total.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-            
-            {invoice.notes && (
-              <div className="mt-8 p-4 bg-surface-50 dark:bg-surface-800 rounded-lg">
-                <h3 className="font-semibold mb-2">Notes</h3>
-                <p className="text-surface-600 dark:text-surface-400 whitespace-pre-line">{invoice.notes}</p>
-              </div>
-            )}
+            <InvoicePreview invoice={invoice} />
           </motion.div>
         ) : (
           <motion.form
