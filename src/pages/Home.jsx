@@ -113,6 +113,23 @@ const Home = () => {
               </button>
               <button
                 className={`px-4 py-3 font-medium transition-colors relative ${
+                  activeTab === 'drafts' 
+                    ? 'text-primary' 
+                    : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'
+                }`}
+                onClick={() => setActiveTab('drafts')}
+              >
+                Drafts {draftCount > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-2 py-0.5">{draftCount}</span>}
+                {activeTab === 'drafts' && (
+                  <motion.div 
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    initial={false}
+                  />
+                )}
+              </button>
+              <button
+                className={`px-4 py-3 font-medium transition-colors relative ${
                   activeTab === 'templates' 
                     ? 'text-primary' 
                     : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'
@@ -136,6 +153,29 @@ const Home = () => {
                   currentDraft={currentDraft} 
                   onDraftSaved={handleDraftSaved}
                 />
+              )}
+              
+              {activeTab === 'drafts' && (
+                <div className="card p-6">
+                  <h3 className="font-medium mb-4">Saved Drafts</h3>
+                  <SavedDrafts 
+                    onLoadDraft={handleLoadDraft} 
+                    onDeleteDraft={handleDeleteDraft}
+                  />
+                  {draftCount === 0 && (
+                    <div className="py-8 text-center">
+                      <p className="text-surface-600 dark:text-surface-400 mb-4">
+                        You don't have any saved drafts yet.
+                      </p>
+                      <button 
+                        className="btn btn-primary"
+                        onClick={() => setActiveTab('create')}
+                      >
+                        Create New Invoice
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
               
               {activeTab === 'templates' && (
@@ -181,11 +221,6 @@ const Home = () => {
         </div>
         
         <div className="w-full md:w-1/4">
-          <SavedDrafts 
-            onLoadDraft={handleLoadDraft} 
-            onDeleteDraft={handleDeleteDraft}
-          />
-          
           <div className="card p-6 mb-6">
             <h3 className="font-medium mb-4">Recent Invoices</h3>
             <div className="space-y-4">
