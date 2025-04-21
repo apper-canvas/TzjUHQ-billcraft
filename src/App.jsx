@@ -8,7 +8,7 @@ import NotFound from './pages/NotFound';
 function App() {
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
-    return savedMode ? JSON.parse(savedMode) : false; // Default to light mode
+    return savedMode ? JSON.parse(savedMode) : true; // Default to dark mode
   });
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
