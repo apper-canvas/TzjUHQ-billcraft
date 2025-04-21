@@ -10,12 +10,12 @@ const InvoicePreview = ({ invoice }) => {
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">B</span>
             </div>
-            <span className="text-xl font-bold">BillDealer</span>
+            <span className="text-xl font-bold">BillPartner</span>
           </div>
           <div className="text-surface-600 dark:text-surface-400">
             <p>123 Business Avenue</p>
             <p>Finance District, NY 10001</p>
-            <p>contact@billdealer.com</p>
+            <p>contact@billpartner.com</p>
             <p>+1 (555) 123-4567</p>
           </div>
         </div>
@@ -131,7 +131,7 @@ const InvoicePreview = ({ invoice }) => {
       <div className="text-center text-surface-500 dark:text-surface-400 text-sm border-t border-surface-200 dark:border-surface-700 pt-4">
         <p>Thank you for your business!</p>
         <p className="mt-2">
-          This invoice was created using <span className="font-semibold">BillDealer</span>
+          This invoice was created using <span className="font-semibold">BillPartner</span>
         </p>
       </div>
     </div>
