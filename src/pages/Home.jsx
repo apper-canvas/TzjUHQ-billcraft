@@ -1,10 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Plus, ChevronRight } from 'lucide-react';
 import MainFeature from '../components/MainFeature';
+import SavedDrafts from '../components/SavedDrafts';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('create');
+  const [currentDraft, setCurrentDraft] = useState(null);
+  const [draftCount, setDraftCount] = useState(0);
+  
+  // Check for drafts on component mount
+  useEffect(() => {
+    const checkDrafts = () => {
+      try {
+        const savedDrafts = localStorage.getItem('invoiceDrafts');
+        if (savedDrafts) {
+          const drafts = JSON.parse(savedDrafts);
+          setDraftCount(drafts.length);
+        } else {
+          setDraftCount(0);
+        }
+      } catch (error) {
+        console.error('Error checking drafts:', error);
+        setDraftCount(0);
+      }
+    };
+    
+    checkDrafts();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', checkDrafts);
+    
+    return () => {
+      window.removeEventListener('storage', checkDrafts);
+    };
+  }, []);
+  
+  // Handle loading a draft
+  const handleLoadDraft = (draft) => {
+    setCurrentDraft(draft);
+    // Switch to create tab if not already there
+    if (activeTab !== 'create') {
+      setActiveTab('create');
+    }
+  };
+  
+  // Handle draft deletion
+  const handleDeleteDraft = () => {
+    // Just refresh draft count
+    try {
+      const savedDrafts = localStorage.getItem('invoiceDrafts');
+      if (savedDrafts) {
+        const drafts = JSON.parse(savedDrafts);
+        setDraftCount(drafts.length);
+      } else {
+        setDraftCount(0);
+      }
+    } catch (error) {
+      console.error('Error updating draft count:', error);
+    }
+  };
+  
+  // Handle draft saved
+  const handleDraftSaved = () => {
+    try {
+      const savedDrafts = localStorage.getItem('invoiceDrafts');
+      if (savedDrafts) {
+        const drafts = JSON.parse(savedDrafts);
+        setDraftCount(drafts.length);
+      }
+    } catch (error) {
+      console.error('Error updating draft count:', error);
+    }
+  };
   
   // Sample recent invoices data
   const recentInvoices = [
@@ -63,7 +131,12 @@ const Home = () => {
             </div>
             
             <div className="min-h-[500px]">
-              {activeTab === 'create' && <MainFeature />}
+              {activeTab === 'create' && (
+                <MainFeature 
+                  currentDraft={currentDraft} 
+                  onDraftSaved={handleDraftSaved}
+                />
+              )}
               
               {activeTab === 'templates' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -108,6 +181,11 @@ const Home = () => {
         </div>
         
         <div className="w-full md:w-1/4">
+          <SavedDrafts 
+            onLoadDraft={handleLoadDraft} 
+            onDeleteDraft={handleDeleteDraft}
+          />
+          
           <div className="card p-6 mb-6">
             <h3 className="font-medium mb-4">Recent Invoices</h3>
             <div className="space-y-4">

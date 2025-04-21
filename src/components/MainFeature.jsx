@@ -3,14 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Trash2, Download, Send, Save, FileText, 
   DollarSign, Percent, Calendar, User, Building, 
-  Hash, CreditCard, Check, Printer, Eye, Edit
+  Hash, CreditCard, Check, Printer, Eye, Edit,
+  AlertTriangle
 } from 'lucide-react';
 import InvoicePreview from './InvoicePreview';
 import PrintButton from './PrintButton';
 
-const MainFeature = () => {
+const MainFeature = ({ currentDraft, onDraftSaved }) => {
   // Invoice state
   const [invoice, setInvoice] = useState({
+    id: crypto.randomUUID(), // Unique ID for the invoice/draft
     invoiceNumber: '',
     date: formatDate(new Date()),
     dueDate: formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)), // 30 days from now
@@ -28,6 +30,7 @@ const MainFeature = () => {
     discount: 0,
     total: 0,
     notes: '',
+    lastEdited: new Date().toISOString(),
   });
   
   // Form validation
@@ -39,6 +42,19 @@ const MainFeature = () => {
   // Success message
   const [showSuccess, setShowSuccess] = useState(false);
   
+  // Show draft saved message
+  const [showDraftSaved, setShowDraftSaved] = useState(false);
+  
+  // Load draft if one is selected
+  useEffect(() => {
+    if (currentDraft) {
+      setInvoice({
+        ...currentDraft,
+        lastEdited: new Date().toISOString() // Update last edited date
+      });
+    }
+  }, [currentDraft]);
+
   // Calculate totals whenever items, tax rate, or discount changes
   useEffect(() => {
     // Calculate item totals
@@ -71,7 +87,8 @@ const MainFeature = () => {
       items: updatedItems,
       subtotal: newSubtotal,
       taxAmount: newTaxAmount,
-      total: newTotal
+      total: newTotal,
+      lastEdited: new Date().toISOString()
     }));
   }, [invoice.items, invoice.taxRate, invoice.discount]);
   
@@ -112,12 +129,14 @@ const MainFeature = () => {
         [parent]: {
           ...prev[parent],
           [child]: value
-        }
+        },
+        lastEdited: new Date().toISOString()
       }));
     } else {
       setInvoice(prev => ({
         ...prev,
-        [name]: value
+        [name]: value,
+        lastEdited: new Date().toISOString()
       }));
     }
     
@@ -137,7 +156,8 @@ const MainFeature = () => {
     
     setInvoice(prev => ({
       ...prev,
-      [name]: numericValue
+      [name]: numericValue,
+      lastEdited: new Date().toISOString()
     }));
   };
   
@@ -157,7 +177,8 @@ const MainFeature = () => {
       
       return {
         ...prev,
-        items: updatedItems
+        items: updatedItems,
+        lastEdited: new Date().toISOString()
       };
     });
   };
@@ -171,7 +192,8 @@ const MainFeature = () => {
       items: [
         ...prev.items,
         { id: newId, description: '', quantity: 1, price: 0, total: 0 }
-      ]
+      ],
+      lastEdited: new Date().toISOString()
     }));
   };
   
@@ -183,7 +205,8 @@ const MainFeature = () => {
     
     setInvoice(prev => ({
       ...prev,
-      items: prev.items.filter(item => item.id !== id)
+      items: prev.items.filter(item => item.id !== id),
+      lastEdited: new Date().toISOString()
     }));
   };
   
@@ -209,6 +232,75 @@ const MainFeature = () => {
     return Object.keys(newErrors).length === 0;
   };
   
+  // Save draft
+  const saveDraft = () => {
+    try {
+      // Get existing drafts from localStorage
+      const existingDraftsString = localStorage.getItem('invoiceDrafts');
+      const existingDrafts = existingDraftsString ? JSON.parse(existingDraftsString) : [];
+      
+      // Check if this draft already exists
+      const draftIndex = existingDrafts.findIndex(draft => draft.id === invoice.id);
+      
+      // Update or add the current draft
+      if (draftIndex >= 0) {
+        existingDrafts[draftIndex] = invoice;
+      } else {
+        existingDrafts.push(invoice);
+      }
+      
+      // Save back to localStorage
+      localStorage.setItem('invoiceDrafts', JSON.stringify(existingDrafts));
+      
+      // Show saved message
+      setShowDraftSaved(true);
+      setTimeout(() => setShowDraftSaved(false), 3000);
+      
+      // Notify parent component
+      if (onDraftSaved) {
+        onDraftSaved();
+      }
+      
+      // Trigger storage event to update other components
+      window.dispatchEvent(new Event('storage'));
+      
+    } catch (error) {
+      console.error('Error saving draft:', error);
+    }
+  };
+  
+  // Start a new invoice
+  const startNewInvoice = () => {
+    // Generate a new invoice number
+    const nextInvoiceNumber = `INV-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+    
+    // Create a fresh invoice
+    setInvoice({
+      id: crypto.randomUUID(),
+      invoiceNumber: nextInvoiceNumber,
+      date: formatDate(new Date()),
+      dueDate: formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+      client: {
+        name: '',
+        email: '',
+        address: '',
+      },
+      items: [
+        { id: 1, description: '', quantity: 1, price: 0, total: 0 }
+      ],
+      subtotal: 0,
+      taxRate: 0,
+      taxAmount: 0,
+      discount: 0,
+      total: 0,
+      notes: '',
+      lastEdited: new Date().toISOString(),
+    });
+    
+    // Clear any errors
+    setErrors({});
+  };
+  
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -221,19 +313,23 @@ const MainFeature = () => {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
       
-      // Generate a new invoice number for the next invoice
-      const nextInvoiceNumber = `INV-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+      // Remove from drafts if it was saved
+      try {
+        const existingDraftsString = localStorage.getItem('invoiceDrafts');
+        if (existingDraftsString) {
+          const existingDrafts = JSON.parse(existingDraftsString);
+          const updatedDrafts = existingDrafts.filter(draft => draft.id !== invoice.id);
+          localStorage.setItem('invoiceDrafts', JSON.stringify(updatedDrafts));
+          
+          // Trigger storage event to update other components
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch (error) {
+        console.error('Error removing draft after submission:', error);
+      }
       
-      // Reset form with a new invoice number and keeping the same client
-      setInvoice(prev => ({
-        ...prev,
-        invoiceNumber: nextInvoiceNumber,
-        items: [{ id: 1, description: '', quantity: 1, price: 0, total: 0 }],
-        subtotal: 0,
-        taxAmount: 0,
-        total: 0,
-        notes: ''
-      }));
+      // Start a new invoice
+      startNewInvoice();
     }
   };
   
@@ -258,6 +354,18 @@ const MainFeature = () => {
           >
             <Check size={20} className="mr-2" />
             Invoice created successfully!
+          </motion.div>
+        )}
+        
+        {showDraftSaved && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-0 left-0 right-0 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 p-4 rounded-lg flex items-center justify-center"
+          >
+            <Save size={20} className="mr-2" />
+            Draft saved successfully!
           </motion.div>
         )}
       </AnimatePresence>
@@ -586,7 +694,18 @@ const MainFeature = () => {
             </div>
             
             <div className="flex justify-end gap-3">
-              <button type="button" className="btn btn-outline flex items-center">
+              <button
+                type="button"
+                onClick={startNewInvoice}
+                className="btn btn-outline flex items-center"
+              >
+                <Plus size={18} className="mr-2" /> New Invoice
+              </button>
+              <button 
+                type="button" 
+                onClick={saveDraft} 
+                className="btn btn-outline flex items-center"
+              >
                 <Save size={18} className="mr-2" /> Save Draft
               </button>
               <button type="submit" className="btn btn-primary flex items-center">
